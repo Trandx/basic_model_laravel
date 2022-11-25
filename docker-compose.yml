@@ -1,0 +1,122 @@
+version: '3.8'
+services:
+    # apache:
+    #     container_name: apache
+    #     build:
+    #     context: .
+    #     dockerfile: ./services/apache/Dockerfile
+
+##########################################################
+
+    # nginx_php:
+    #   container_name: nginx_php
+    #   build:
+    #     context: .
+    #     dockerfile: ./services/nginx_php/Dockerfile
+    #   # volumes:
+    #   #   - ./laravel/nginx/conf:/etc/nginx/conf.d/
+    #   #  - ./laravel:/app/clinique
+    #   # ports:
+    #   #   - 9000:80
+    #   # networks:
+    #   #   - laravel_network
+
+###########################################################
+
+    # laravel_in_apache:
+    #     #image: cemessaf_apache
+    #     hostname: laravel
+    #     container_name: laravel
+
+    #     build:
+    #     context: .
+    #     dockerfile: ./laravel/Dockerfile
+    #     volumes:
+    #     - ./laravel:/var/www/html/laravel.lan
+
+    #     - ./services/apache/conf/apache2.conf:/etc/apache2/apache2.conf
+
+    #     - ./services/apache/conf/sites:/etc/apache2/sites-enabled
+
+    #     # - ./laravel/apache/conf/httpd.conf:/usr/local/apache2/conf/httpd.conf
+
+    #     #- ./laravel/apache/conf/scan_doc.lan.conf:/etc/apache2/sites-enabled/scan_doc.lan.conf
+    #     - ./services/apache/conf/php.ini:/usr/local/etc/php/php.ini
+    #     #- ./laravel/php.ini:/usr/local/etc/php/php.ini-development
+    #     # extra_hosts:
+    #     #  - "scan_doc.lan clinique:127.0.0.1"
+    #     environment:
+    #     - ALLOW_OVERRIDE=true
+    #     ports:
+    #     - 80:80
+    #     #- 9898:9898
+    #     depends_on:
+    #     - db_laravel
+    #     networks:
+    #     - laravel_network
+
+    laravel:
+        container_name: blank_laravel
+        hostname: laravel
+        build: 
+            context: .
+            dockerfile: ./laravel/Dockerfile
+    
+        # env_file:
+        #     - ./laravel/.env
+      
+        # environment:
+        #     DB_HOST: db ##nom du service 
+           
+        #     DB_PORT: 3306
+                    
+        volumes:
+            - ./laravel:/app
+    
+        ports:
+            - 8000:8000
+        depends_on:
+            - db
+        networks:
+            - laravel_network
+
+    db:
+        container_name: db_laravel
+        image: mariadb
+        
+        #restart: always #unless-stopped
+        volumes:
+            #- ./services/db:/usr/lib/mysql/data
+            - ./services/db:/var/lib/mysql
+        # env_file:
+        #     - ./laravel/.env
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+
+            MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+        ports:
+            - 3320:3306
+        networks:
+            - laravel_network
+
+    # db:
+    #     container_name: db_laravel
+    #     image: postgres
+    #     #restart: always
+    #     volumes:
+    #         - ./services/db:/usr/lib/postgresql/data
+        
+    #     environment:
+    #         POSTGRES_DB: db_laravel
+    #         POSTGRES_USER: root
+    #         POSTGRES_PASSWORD: root
+    #     ports:
+    #         - 5434:5432
+    #     networks:
+    #      - laravel_network
+
+networks:
+    laravel_network:
